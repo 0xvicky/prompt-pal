@@ -2,6 +2,8 @@
 
 import React, {useState, useEffect} from "react";
 import {signIn, getProviders} from "next-auth/react";
+import {FcGoogle} from "react-icons/fc";
+import {FaGithub} from "react-icons/fa";
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -15,6 +17,7 @@ const Auth = () => {
     handleProvider();
   }, []);
 
+  //   console.log(providers);
   const handleSubmit = () => {
     return;
   };
@@ -109,10 +112,13 @@ const Auth = () => {
               onClick={() => {
                 signIn(provider.id);
               }}
-              className='text-gray-600'>
-              <span className='bg-gradient-to-br from-purple-800 via-fuchsia-500 to-violet-500   text-white rounded-md py-1.5 px-2 w-full'>
-                {`Sign In with ${provider.name}`}
-              </span>
+              className='flex justify-center items-center gap-4 text-gray-600 bg-white py-1 rounded-md shadow-xl shadow-gray-200'>
+              {`Sign In with ${provider.name}`}{" "}
+              {provider.name === "GitHub" ? (
+                <FaGithub fontSize={25} />
+              ) : (
+                <FcGoogle fontSize={25} />
+              )}
             </button>
           ))}
       </form>
