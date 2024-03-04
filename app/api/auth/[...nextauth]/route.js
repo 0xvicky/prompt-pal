@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
+import Credentials from "next-auth/providers/credentials";
 import {connectToDB} from "@utils/database";
 import User from "@models/user";
 export const authOptions = {
@@ -12,6 +13,12 @@ export const authOptions = {
     GithubProvider({
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET
+    }),
+
+    Credentials({
+      name: "credentials",
+      credentials: {},
+      async authorize() {}
     })
   ],
   callbacks: {

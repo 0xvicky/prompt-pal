@@ -8,18 +8,50 @@ import {FaGithub} from "react-icons/fa";
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [providers, setProviders] = useState();
+  const [customProvider, setCustomProvider] = useState();
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: ""
+  });
 
   useEffect(() => {
     const handleProvider = async () => {
       const res = await getProviders();
-      setProviders(res);
+
+      Object.values(res).map(provider => {
+        if (provider.name === "credentials") {
+          setCustomProvider(provider);
+        } else {
+          setProviders(res);
+        }
+      });
     };
     handleProvider();
   }, []);
 
-  //   console.log(providers);
-  const handleSubmit = () => {
-    return;
+  const handleSignIn = e => {
+    e.preventDefault();
+    console.log("handleSignIn");
+  };
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch("/api/signUp", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(formData)
+      });
+      if (res.status === 201) {
+        console.log("User created successfully");
+      }
+    } catch (error) {
+      console.log(`Error occured while signin Up:${error}`);
+    }
   };
   return (
     <section className='w-full max-w-full flex-start flex-col'>
@@ -39,6 +71,7 @@ const Auth = () => {
                 placeholder='First Name'
                 required
                 className='form_input'
+                onChange={e => setFormData({...formData, firstName: e.target.value})}
               />
             </label>
             <label className='w-1/2'>
@@ -49,6 +82,7 @@ const Auth = () => {
                 placeholder='Last Name'
                 required
                 className='form_input'
+                onChange={e => setFormData({...formData, lastName: e.target.value})}
               />
             </label>
           </div>
@@ -61,6 +95,7 @@ const Auth = () => {
             placeholder='Enter Email'
             required
             className='form_input'
+            onChange={e => setFormData({...formData, email: e.target.value})}
           />
         </label>
         <label>
@@ -71,6 +106,7 @@ const Auth = () => {
             placeholder='Enter Password'
             required
             className='form_input'
+            onChange={e => setFormData({...formData, password: e.target.value})}
           />
         </label>
         {isSignUp && (
@@ -82,6 +118,7 @@ const Auth = () => {
               placeholder='Confirm Password'
               required
               className='form_input'
+              onChange={e => setFormData({...formData, confirmPassword: e.target.value})}
             />
           </label>
         )}
@@ -98,29 +135,42 @@ const Auth = () => {
               {isSignUp ? "Sign In" : "Sign Up"}
             </span>
           </button>
-          <button
-            type='submit'
-            className='px-5 py-1.5 text-sm bg-gradient-to-br from-purple-800 via-fuchsia-500 to-violet-500 rounded-md text-white'>
-            {isSignUp ? "Sign Up" : "Sign In"}
-          </button>
-        </div>
-        {providers &&
-          Object.values(providers).map(provider => (
+          {isSignUp ? (
+            <button
+              type='submit'
+              className='px-5 py-1.5 text-sm bg-gradient-to-br from-purple-800 via-fuchsia-500 to-violet-500 rounded-md text-white'>
+              Sign Up
+            </button>
+          ) : (
             <button
               type='button'
-              key={provider.name}
-              onClick={() => {
-                signIn(provider.id);
-              }}
-              className='flex justify-center items-center gap-4 text-gray-600 bg-white py-1 rounded-md shadow-xl shadow-gray-200'>
-              {`Sign In with ${provider.name}`}{" "}
-              {provider.name === "GitHub" ? (
-                <FaGithub fontSize={25} />
-              ) : (
-                <FcGoogle fontSize={25} />
-              )}
+              className='px-5 py-1.5 text-sm bg-gradient-to-br from-purple-800 via-fuchsia-500 to-violet-500 rounded-md text-white'
+              onClick={handleSignIn}>
+              Sign In
             </button>
-          ))}
+          )}
+        </div>
+        {providers &&
+          Object.values(providers).map(provider => {
+            return (
+              provider.id !== "credentials" && (
+                <button
+                  type='button'
+                  key={provider.name}
+                  onClick={() => {
+                    signIn(provider.id);
+                  }}
+                  className='flex justify-center items-center gap-4 text-gray-600 bg-white py-1 rounded-md shadow-xl shadow-gray-200'>
+                  {`Sign In with ${provider.name}`}{" "}
+                  {provider.name === "GitHub" ? (
+                    <FaGithub fontSize={25} />
+                  ) : (
+                    <FcGoogle fontSize={25} />
+                  )}
+                </button>
+              )
+            );
+          })}
       </form>
     </section>
   );
